@@ -54,6 +54,15 @@ mosquitto_sub -h 192.168.1.171 -t iot
 
 Se suscribe al topic `iot` que está en el [MQTT][2] *broker* con dirección IP `192.168.20.21`.
 
+## Ejemplo
+
+En cada aula del instituto podríamos tener un sensor de temperatura y humedad e ir publicando los valores que vamos obteniendo. Podríamos tener los dos siguientes *topics* para el `aula20`:
+
+```
+ies/aula20/temperature
+ies/aula20/humidity
+```
+
 ## Licencia
 
 <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />Esta obra está bajo una <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">licencia de Creative Commons Reconocimiento-CompartirIgual 4.0 Internacional</a>.
