@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NanoPlayBoard</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Morris.js -->
+    <link href="css/morris.css" rel="stylesheet" >
+
+    <!-- jQuery -->
+    <script src="js/jquery.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div class="container">
+      <h1>IES Celia Viñas <span style="color:#E91E63">-</span> Aula20 - IoT</h1>
+    
+      <div class="row">
+        <div class="col-md-4">
+        <h4><img src="images/_potentiometer_48x48.png" />Temperature Chart</h4>
+        <div id="potchart" style="height: 250px;"></div>
+        </div>
+
+        <div class="col-md-4">
+        <h4><img src="images/_potentiometer_48x48.png" />Temperature Donut</h4>
+        <div id="potdonut" style="height: 250px;"></div>
+        </div>
+
+        <div class="col-md-4">
+        <h4><img src="images/_potentiometer_48x48.png" />Temperature Bar</h4>
+        <div id="potbar" style="height: 250px;"></div>
+        </div>
+
+        <div class="col-md-4">
+        <h4><img src="images/_ldr_48x48.png" />Humidity Chart</h4>
+        <div id="ldrchart" style="height: 250px;""></div>
+        </div>
+
+        <div class="col-md-4">
+        <h4><img src="images/_ldr_48x48.png" />Humidity Donut</h4>
+        <div id="ldrdonut" style="height: 250px;"></div>
+        </div>
+
+        <div class="col-md-4">
+        <h4><img src="images/_ldr_48x48.png" />Humidity Bar</h4>
+        <div id="ldrbar" style="height: 250px;"></div>
+        </div>
+
+      </div>
+    </div>
+    <!-- /container -->
+
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Morris Charts JavaScript -->
+    <script src="js/raphael-min.js"></script>
+    <script src="js/morris.min.js"></script>
+
+    <!-- Socket IO -->
+    <script src="socket.io/socket.io.js"></script>
+
+    <script>
+      //var socket = io.connect('http://localhost:3000');
+      var socket = io.connect('http://192.168.20.21:3000');
+
+      socket.on('temperature', function(data) {
+        // Create the current point
+        var graphPoint = {};
+        graphPoint.timestamp = Date.now();
+        graphPoint.value = data.raw;
+        
+        // Update the set of points
+        potChartData[potIndex++ % MAX] = graphPoint;
+        potChart.setData(potChartData);
+
+        // Create the point for the potentiometer segment
+        var potSegment = {};
+        potSegment.label = "Temperature ºC";
+        potSegment.value = data.raw;
+
+        var whiteSegment = {};
+        whiteSegment.label = "";
+        whiteSegment.value = 1023 - data.raw;
+
+        // Update the segments
+        potDonutData[0] = potSegment;
+        potDonutData[1] = whiteSegment;
+        potDonut.setData(potDonutData);
+
+        // Select the potentiometer donut segment
+        potDonut.select(0);
+
+        // Update the bar chart
+        potBarData[0] = potSegment;
+        potBar.setData(potBarData);
+      });
+
+      socket.on('humidity', function(data) {
+        // Create the current point
+        var graphPoint = {};
+        graphPoint.timestamp = Date.now();
+        graphPoint.value = data.raw;
+        
+        // Update the set of points
+        ldrChartData[ldrIndex++ % MAX] = graphPoint;
+        ldrChart.setData(ldrChartData);
+
+        // Create the point for the ldr segment
+        var ldrSegment = {};
+        ldrSegment.label = "Humidity %";
+        ldrSegment.value = data.raw;
+
+        var whiteSegment = {};
+        whiteSegment.label = "";
+        whiteSegment.value = 1023 - data.raw;
+
+        // Update the segments
+        ldrDonutData[0] = ldrSegment;
+        ldrDonutData[1] = whiteSegment;
+        ldrDonut.setData(ldrDonutData);
+
+        // Select the ldr donut segment
+        ldrDonut.select(0);
+
+        // Update the bar chart
+        ldrBarData[0] = ldrSegment;
+        ldrBar.setData(ldrBarData);
+      });
+
+      // Morris.js
+      const MAX = 10;
+      var potIndex = 0;
+      var potChartData = [{timestamp:0, value:0}];
+
+      var potChart = new Morris.Line({
+        element: 'potchart',
+        data: potChartData,
+        xkey: 'timestamp',
+        ykeys: ['value'],
+        labels: ['Potentiometer'],
+        hideHover: true,
+        lineColors: [ '#CDDC39' ]
+      });
+
+      var potDonutData = [{label: "Temperature", value: 0}];
+
+      var potDonut = new Morris.Donut({
+        element: 'potdonut',
+        data: potDonutData,
+        colors: [
+            '#FF7043',
+            '#FFFFFF'
+        ]
+      });
+
+      var potBarData = [{label: 'Temperature', value: 100}];
+
+      var potBar = new Morris.Bar({
+        element: 'potbar',
+        data: potBarData,
+        xkey: 'label',
+        ykeys: ['value'],
+        labels: ['Potentiometer'],
+        hideHover: false,
+        barColors: [ '#2196F3' ],
+        ymin: 0,
+        ymax: 99
+      });
+
+      var ldrIndex = 0;
+      var ldrChartData = [{timestamp:0, value:0}];
+
+      var ldrChart = new Morris.Line({
+        element: 'ldrchart',
+        data: ldrChartData,
+        xkey: 'timestamp',
+        ykeys: ['value'],
+        labels: ['Humidity (%)'],
+        hideHover: true,
+        lineColors: [ '#FFC107' ]
+      });
+
+      var ldrDonutData = [{label: "Humidity", value: 0}];
+
+      var ldrDonut = new Morris.Donut({
+        element: 'ldrdonut',
+        data: ldrDonutData,
+        colors: [
+            '#8BC34A',
+            '#FFFFFF'
+        ]
+      });
+
+      var ldrBarData = [{label: 'Humidity', value: 100}];
+
+      var ldrBar = new Morris.Bar({
+        element: 'ldrbar',
+        data: ldrBarData,
+        xkey: 'label',
+        ykeys: ['value'],
+        labels: ['LDR'],
+        hideHover: false,
+        barColors: [ '#3F51B5' ],
+        ymin: 0,
+        ymax: 99
+      });
+
+    </script>
+
+</body>
+
+</html>
