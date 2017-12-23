@@ -3,9 +3,7 @@
 
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
-  #config.vm.network "private_network", ip: "192.168.33.10"
-  config.vm.network "public_network", ip: "192.168.1.171"
-  config.vm.synced_folder "./", "/development", type: "rsync"
+  config.vm.network "public_network", ip: "192.168.1.200"
 
   config.vm.provision "shell", inline: <<-SHELL
      apt-get update
