@@ -305,10 +305,10 @@ mosquitto_pub -h <host> -t <topic> -m <mensaje>
 Por ejemplo, el comando:
 
 ``` 
-mosquitto_pub -h 192.168.20.21 -t aula20 -m "hello world!"
+mosquitto_pub -h 192.168.1.200 -t aula20 -m "hello world!"
 ```
 
-Publica el mensaje `"hello world!"` en el topic `aula20` en el [MQTT][2] *broker* que está en la IP `192.168.20.21`.
+Publica el mensaje `"hello world!"` en el topic `aula20` en el [MQTT][2] *broker* que está en la IP `192.168.1.200`.
 
 ### Suscribirse a un *topic* 
 
@@ -319,10 +319,10 @@ mosquitto_sub -h <host> -t <topic>
 Por ejemplo, el comando:
 
 ```
-mosquitto_sub -h 192.168.1.171 -t aula20
+mosquitto_sub -h 192.168.1.200 -t aula20
 ```
 
-Se suscribe al topic `aula20` que está en el [MQTT][2] *broker* con dirección IP `192.168.20.21`.
+Se suscribe al topic `aula20` que está en el [MQTT][2] *broker* con dirección IP `192.168.1.200`.
 
 ## Licencia
 

@@ -19,7 +19,7 @@ IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 // MQTT configuration
-#define MQTT_SERVER      "192.168.1.171" // test.mosquitto.org
+#define MQTT_SERVER      "192.168.1.200" // test.mosquitto.org
 #define MQTT_SERVERPORT  1883
 #define MQTT_USERNAME    ""
 #define MQTT_KEY         ""
