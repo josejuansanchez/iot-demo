@@ -1,6 +1,6 @@
 # iot-demo
 
-## Descripción del problema
+## Descripción del proyecto
 
 En cada aula del instituto vamos a tener un [Wemos D1 mini][4] y un [sensor de temperatura/humedad DHT11][5] que va a ir tomando medidas de forma constante y las va a ir publicando en un [*broker* MQTT][2]. También existirán otros dispositivos y aplicaciones que estarán suscritas a los *topics* del [*broker* MQTT][2] donde se publican los valores recogidos por los sensores. Podríamos seguir la siguiente estructura de nombres para los *topics* del edificio:
 
@@ -16,19 +16,63 @@ ies/aula20/temperature
 ies/aula20/humidity
 ```
 
-## Wemos D1 mini
+## Hardware
+
+### Wemos D1 mini
 
 ![](images/wemos_d1_mini.jpg)
 
 Puedes encontrar [más información en la documentación oficial][4].
 
-## Sensor de temperatura/humedad DHT11
+### Sensor de temperatura/humedad DHT11
 
 ![](images/dht11_shield.jpg)
 
 Puedes encontrar [más información en la documentación oficial][6].
 
-## Cómo obtener la dirección MAC de un Wemos D1 mini
+## Wemos D1 mini
+
+### Lectura del sensor de temperatura/humedad DHT11
+
+Vamos a hacer uso de la librería de [Adafruit DHT][8] para trabajar con los [sensores DHT11][5]. Podemos usar el siguiente código de ejemplo:
+
+```c++
+#include "DHT.h"
+
+#define DHTPIN D4
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("IoT demo");
+  dht.begin();
+}
+
+void loop() {
+  delay(2000);
+
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print(" %\t");
+  Serial.print("Temperature: ");
+  Serial.print(t);
+  Serial.println(" *C ");
+}
+```
+
+[Código fuente](wemos-d1-mini/dht11)
+
+### Cómo obtener la dirección MAC de un Wemos D1 mini
 
 En las aulas estamos usando filtrado por MAC, por lo que será necesario conocer la dirección MAC de nuestros dispositivos [Wemos D1 mini][4]. Podemos usar el siguiente código de ejemplo:
 
@@ -47,7 +91,188 @@ void loop() {
 }
 ```
 
+[Código fuente](wemos-d1-mini/wifi_static_ip)
+
+### Configuración WiFi
+
+El servicio de DHCP está desactivado en los puntos de acceso WiFi por lo que tendremos que asignar una dirección IP estática a cada uno de los dispostivos [Wemos D1 mini][4]. Por ejemplo, para la siguiente configuración de red:
+
+* WiFi SSID: `AULA20`
+* WiFi Password: `aula20`
+* IP: `192.168.1.10`
+* Puerta de enlace: `192.168.1.1`
+* Máscara de red: `255.255.255.0`
+
+Utilizaríamos el siguiente código:
+
+```c++
+#include <ESP8266WiFi.h>
+
+#define WLAN_SSID       "AULA20"
+#define WLAN_PASS       "aula20"
+
+IPAddress ip(192, 168, 1, 10);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 255, 0);
+
+WiFiClient client;
+
+//----------------------------------------------
+
+void connectWiFi() {
+  WiFi.config(ip, gateway, gateway, subnet);
+  WiFi.begin(WLAN_SSID, WLAN_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+     delay(500);
+     Serial.print(".");
+  }
+
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+//----------------------------------------------
+
+void setup() {
+  Serial.begin(115200);
+  connectWiFi();
+}
+
+void loop() {
+
+}
+```
+
+[Código fuente](wemos-d1-mini/wifi_static_ip)
+
+### Configuración para publicar datos en el *broker* MQTT
+
+Vamos a hacer uso de la librería [Adafruit MQTT][7] para conectar con el *broker* MQTT y publicar los datos que vamos obteniendo de los [sensores DHT11][5]. En nuestro caso vamos a tener la siguiente configuración de red:
+
+* WiFi SSID: `AULA20`
+* WiFi Password: `aula20`
+* IP: `192.168.1.10`
+* Puerta de enlace: `192.168.1.1`
+* Máscara de red: `255.255.255.0`
+
+Y la configuración del *broker* MQTT será la siguiente:
+
+* Servidor MQTT: `192.168.1.200`
+* Puerto MQTT: `1883`
+* Topic para los valores de temperatura: `ies/aula20/temperature`
+* Topic para los valores de humedad: `ies/aula20/humidity`
+
+En este ejemplo no vamos a proteger el acceso al *topic* con usuario y contraseña.
+
+```c++
+#include "DHT.h"
+#include <ESP8266WiFi.h>
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_Client.h"
+
+#define DHTPIN D4
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
+
+#define WLAN_SSID       "AULA20"
+#define WLAN_PASS       "aula20"
+
+IPAddress ip(192, 168, 1, 10);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 255, 0);
+
+#define MQTT_SERVER      "192.168.1.200"
+#define MQTT_SERVERPORT  1883
+#define MQTT_USERNAME    ""
+#define MQTT_KEY         ""
+#define MQTT_FEED_TEMP   "ies/aula20/temperature"
+#define MQTT_FEED_HUMI   "ies/aula20/humidity"
+
+WiFiClient client;
+
+Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, MQTT_SERVERPORT, MQTT_USERNAME, MQTT_USERNAME, MQTT_KEY);
+
+Adafruit_MQTT_Publish temperatureFeed = Adafruit_MQTT_Publish(&mqtt, MQTT_FEED_TEMP);
+
+Adafruit_MQTT_Publish humidityFeed = Adafruit_MQTT_Publish(&mqtt, MQTT_FEED_HUMI);
+
+//----------------------------------------------
+
+void connectWiFi();
+
+//----------------------------------------------
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("IoT demo");
+  dht.begin();
+  connectWiFi();
+  connectMQTT();
+}
+
+//----------------------------------------------
+
+void loop() {
+  delay(2000);
+
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print(" %\t");
+  Serial.print("Temperature: ");
+  Serial.print(t);
+  Serial.println(" *C ");
+
+  temperatureFeed.publish(t);
+  humidityFeed.publish(h);
+}
+
+//----------------------------------------------
+
+void connectWiFi() {
+  WiFi.config(ip, gateway, gateway, subnet);
+  WiFi.begin(WLAN_SSID, WLAN_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+     delay(500);
+     Serial.print(".");
+  }
+
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+//----------------------------------------------
+
+void connectMQTT() {
+  if (mqtt.connected())
+    return;
+
+  Serial.print("Connecting to MQTT... ");
+  while (mqtt.connect() != 0) {
+       Serial.println("Error. Retrying MQTT connection in 5 seconds...");
+       mqtt.disconnect();
+       delay(5000);
+  }
+}
+```
+
+[Código fuente](wemos-d1-mini/mqtt)
+
 ## MQTT *broker*
+
+### `Vagrantfile` para la máquina virtual
+
+(TODO)
 
 ### Instalación
 
@@ -103,11 +328,11 @@ Se suscribe al topic `aula20` que está en el [MQTT][2] *broker* con dirección 
 
 <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />Esta obra está bajo una <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">licencia de Creative Commons Reconocimiento-CompartirIgual 4.0 Internacional</a>.
 
-
-
 [1]: https://mosquitto.org
 [2]: http://mqtt.org
 [3]: https://es.wikipedia.org/wiki/Internet_de_las_cosas
 [4]: https://wiki.wemos.cc/products:d1:d1_mini
 [5]: https://learn.adafruit.com/dht/overview
 [6]: https://wiki.wemos.cc/products:retired:dht_shield_v1.0.0?s[]=temperature
+[7]: https://github.com/adafruit/Adafruit_MQTT_Library
+[8]: https://github.com/adafruit/DHT-sensor-library
