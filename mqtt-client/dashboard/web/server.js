@@ -1,6 +1,12 @@
 var mqtt = require('mqtt')
-//var client  = mqtt.connect('mqtt://test.mosquitto.org')
-var client  = mqtt.connect('mqtt://192.168.20.21')
+
+const MQTT_SERVER = '192.168.1.200'
+//const MQTT_SERVER = 'test.mosquitto.org'
+const MQTT_TOPIC_TEMPERATURE = 'ies/aula20/temperature'
+const MQTT_TOPIC_HUMIDITY = 'ies/aula20/humidity'
+
+var mqtt = require('mqtt')
+var client  = mqtt.connect('mqtt://' + MQTT_SERVER)
 
 var fs = require('fs');
 var express = require('express');
@@ -28,19 +34,19 @@ io.sockets.on('connection', function(socket) {
 });
 
 client.on('connect', function () {
-  client.subscribe('ies/aula20/temperature');
-  client.subscribe('ies/aula20/humidity');
+  client.subscribe(MQTT_TOPIC_TEMPERATURE);
+  client.subscribe(MQTT_TOPIC_HUMIDITY);
 })  
 
 client.on('message', function (topic, message) {
   console.log(topic);
   console.log(message.toString());
 
-  if (topic == "ies/aula20/temperature") {
+  if (topic == MQTT_TOPIC_TEMPERATURE) {
     io.sockets.emit('temperature', { raw: message.toString() });
   }
 
-  if (topic == "ies/aula20/humidity") {
+  if (topic == MQTT_TOPIC_HUMIDITY) {
     io.sockets.emit('humidity', { raw: message.toString() });
   }
 })

@@ -28,36 +28,36 @@
 <body>
 
     <div class="container">
-      <h1>IES Celia Viñas <span style="color:#E91E63">-</span> Aula20 - IoT</h1>
+      <h1>ies/aula20</h1>
     
       <div class="row">
         <div class="col-md-4">
-        <h4><img src="images/_potentiometer_48x48.png" />Temperature Chart</h4>
+        <h4><img src="images/temperature_icon.png" />Temperature Chart</h4>
         <div id="potchart" style="height: 250px;"></div>
         </div>
 
         <div class="col-md-4">
-        <h4><img src="images/_potentiometer_48x48.png" />Temperature Donut</h4>
+        <h4><img src="images/temperature_icon.png" />Temperature Donut</h4>
         <div id="potdonut" style="height: 250px;"></div>
         </div>
 
         <div class="col-md-4">
-        <h4><img src="images/_potentiometer_48x48.png" />Temperature Bar</h4>
+        <h4><img src="images/temperature_icon.png" />Temperature Bar</h4>
         <div id="potbar" style="height: 250px;"></div>
         </div>
 
         <div class="col-md-4">
-        <h4><img src="images/_ldr_48x48.png" />Humidity Chart</h4>
-        <div id="ldrchart" style="height: 250px;""></div>
+        <h4><img src="images/humidity_icon.png" />Humidity Chart</h4>
+        <div id="ldrchart" style="height: 250px;"></div>
         </div>
 
         <div class="col-md-4">
-        <h4><img src="images/_ldr_48x48.png" />Humidity Donut</h4>
+        <h4><img src="images/humidity_icon.png" />Humidity Donut</h4>
         <div id="ldrdonut" style="height: 250px;"></div>
         </div>
 
         <div class="col-md-4">
-        <h4><img src="images/_ldr_48x48.png" />Humidity Bar</h4>
+        <h4><img src="images/humidity_icon.png" />Humidity Bar</h4>
         <div id="ldrbar" style="height: 250px;"></div>
         </div>
 
@@ -78,7 +78,7 @@
 
     <script>
       //var socket = io.connect('http://localhost:3000');
-      var socket = io.connect('http://192.168.20.21:3000');
+      var socket = io.connect('http://192.168.1.100:3000');
 
       socket.on('temperature', function(data) {
         // Create the current point
