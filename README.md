@@ -16,6 +16,10 @@ ies/aula20/temperature
 ies/aula20/humidity
 ```
 
+## Diagrama
+
+(TODO)
+
 ## Hardware
 
 ### Wemos D1 mini
@@ -70,7 +74,7 @@ void loop() {
 }
 ```
 
-[Código fuente](wemos-d1-mini/dht11)
+[Ver el código fuente](wemos-d1-mini/dht11)
 
 ### Cómo obtener la dirección MAC de un Wemos D1 mini
 
@@ -91,7 +95,7 @@ void loop() {
 }
 ```
 
-[Código fuente](wemos-d1-mini/wifi_static_ip)
+[Ver el código fuente](wemos-d1-mini/wifi_static_ip)
 
 ### Configuración WiFi
 
@@ -144,7 +148,7 @@ void loop() {
 }
 ```
 
-[Código fuente](wemos-d1-mini/wifi_static_ip)
+[Ver el código fuente](wemos-d1-mini/wifi_static_ip)
 
 ### Configuración para publicar datos en el *broker* MQTT
 
@@ -266,13 +270,30 @@ void connectMQTT() {
 }
 ```
 
-[Código fuente](wemos-d1-mini/mqtt)
+[Ver el código fuente](wemos-d1-mini/mqtt)
 
 ## MQTT *broker*
 
 ### `Vagrantfile` para la máquina virtual
 
-(TODO)
+Vamos a utilizar una **máquina virtual** con *Ubuntu Xenial64* para nuestro [*broker* MQTT][2]. Este podría ser el archvivo `Vagrantfile` con la configuración de la máquina virtual:
+
+```ruby
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.network "public_network", ip: "192.168.1.200"
+
+  config.vm.provision "shell", inline: <<-SHELL
+     apt-get update
+     apt-get install -y mosquitto mosquitto-clients
+  SHELL
+end
+```
+
+[Ver el archivo `Vagrantfile`](mqtt-broker/Vagrantfile)
 
 ### Instalación
 
@@ -305,10 +326,10 @@ mosquitto_pub -h <host> -t <topic> -m <mensaje>
 Por ejemplo, el comando:
 
 ``` 
-mosquitto_pub -h 192.168.1.200 -t aula20 -m "hello world!"
+mosquitto_pub -h 192.168.1.200 -t ies/aula20/temperature -m "hello world!"
 ```
 
-Publica el mensaje `"hello world!"` en el topic `aula20` en el [MQTT][2] *broker* que está en la IP `192.168.1.200`.
+Publica el mensaje `"hello world!"` en el topic `ies/aula20/temperature` en el [MQTT][2] *broker* que está en la IP `192.168.1.200`.
 
 ### Suscribirse a un *topic* 
 
@@ -319,10 +340,14 @@ mosquitto_sub -h <host> -t <topic>
 Por ejemplo, el comando:
 
 ```
-mosquitto_sub -h 192.168.1.200 -t aula20
+mosquitto_sub -h 192.168.1.200 -t ies/aula20/temperature
 ```
 
-Se suscribe al topic `aula20` que está en el [MQTT][2] *broker* con dirección IP `192.168.1.200`.
+Se suscribe al topic `ies/aula20/temperature` que está en el [MQTT][2] *broker* con dirección IP `192.168.1.200`.
+
+## Dashboard
+
+(TODO)
 
 ## Licencia
 
