@@ -18,7 +18,7 @@ ies/aula20/humidity
 
 ## Diagrama
 
-(TODO)
+![](images/mqtt_diagram.png)
 
 ## Hardware
 
