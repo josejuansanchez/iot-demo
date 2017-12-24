@@ -345,9 +345,38 @@ mosquitto_sub -h 192.168.1.200 -t ies/aula20/temperature
 
 Se suscribe al topic `ies/aula20/temperature` que está en el [MQTT][2] *broker* con dirección IP `192.168.1.200`.
 
-## Dashboard
+## Cliente MQTT
 
-(TODO)
+## *Dashboard*
+
+Como cliente [MQTT][2] vamos a tener una nueva **máquina virtual** que se va a suscribir a los *topics* del *broker* [MQTT][2] y va a mostrar los valores de los sensores en un panel de control web como el que se muestra a continuación. La dirección IP de la máquina virtual será la `192.168.1.100` y tendrá un **servidor web** con [node.js][9] en el puerto `3000`.
+
+![](images/dashboard_screenshot.png)
+
+### `Vagrantfile` para la máquina virtual del *dashboard*
+
+Vamos a utilizar una **máquina virtual** con *Ubuntu Xenial64* para nuestro [servidor web con node.js][9] que va a alojar el *dashboard*. Este podría ser el archvivo `Vagrantfile` con la configuración de la máquina virtual:
+
+```ruby
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+
+  config.vm.network "public_network", ip: "192.168.1.100"
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y nodejs
+    apt-get install -y npm
+    cd /vagrant/web
+    npm install
+  SHELL
+end
+```
+
+
+
 
 ## Licencia
 
@@ -361,3 +390,4 @@ Se suscribe al topic `ies/aula20/temperature` que está en el [MQTT][2] *broker*
 [6]: https://wiki.wemos.cc/products:retired:dht_shield_v1.0.0?s[]=temperature
 [7]: https://github.com/adafruit/Adafruit_MQTT_Library
 [8]: https://github.com/adafruit/DHT-sensor-library
+[9]: https://nodejs.org/es/
