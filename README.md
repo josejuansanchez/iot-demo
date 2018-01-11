@@ -379,6 +379,10 @@ end
 
 [Ver el código fuente del servidor web con node.js](mqtt-client/dashboard/web)
 
+## Autor
+
+Este material ha sido desarrollado por [José Juan Sánchez](http://josejuansanchez.org).
+
 ## Licencia
 
 <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />Esta obra está bajo una <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">licencia de Creative Commons Reconocimiento-CompartirIgual 4.0 Internacional</a>.
