@@ -1,12 +1,17 @@
 var mqtt = require('mqtt')
 
-const MQTT_SERVER = '192.168.1.200'
+// Solution to bypass firewall restrictions with port 1883
+const MQTT_SERVER = '192.168.8.215'
+const MQTT_PORT = 80
+
 //const MQTT_SERVER = 'test.mosquitto.org'
-const MQTT_TOPIC_TEMPERATURE = 'ies/aula20/temperature'
-const MQTT_TOPIC_HUMIDITY = 'ies/aula20/humidity'
+//const MQTT_PORT = 1883
+
+const MQTT_TOPIC_TEMPERATURE = 'iescelia/aula1/temperature'
+const MQTT_TOPIC_HUMIDITY = 'iescelia/aula1/humidity'
 
 var mqtt = require('mqtt')
-var client  = mqtt.connect('mqtt://' + MQTT_SERVER)
+var client  = mqtt.connect('mqtt://' + MQTT_SERVER + ":" + MQTT_PORT)
 
 var fs = require('fs');
 var express = require('express');
